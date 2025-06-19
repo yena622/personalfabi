@@ -1,0 +1,406 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>个人账户发币规则配置</title>
+    <style>
+        body {
+            font-family: 'Helvetica Neue', Helvetica, Arial, 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            background: #f7f7f7;
+            margin: 0;
+            padding: 0;
+        }
+        .container {
+            max-width: 900px;
+            margin: 40px auto;
+            background: #fff;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            padding: 32px 24px 24px 24px;
+        }
+        h2 {
+            text-align: left;
+            color: #222;
+            margin-bottom: 24px;
+            font-size: 24px;
+            font-weight: 700;
+        }
+        .rule {
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+            padding: 18px 16px 10px 16px;
+            margin-bottom: 18px;
+            position: relative;
+            background: #fafbfc;
+        }
+        .rule .remove-btn {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: #ff4d4f;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            padding: 2px 10px;
+            cursor: pointer;
+            font-size: 13px;
+        }
+        label {
+            display: block;
+            margin-bottom: 6px;
+            color: #555;
+        }
+        input, select, textarea {
+            width: 100%;
+            padding: 7px 10px;
+            margin-bottom: 14px;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            font-size: 15px;
+            box-sizing: border-box;
+        }
+        .inline {
+            display: flex;
+            gap: 12px;
+        }
+        .inline > div {
+            flex: 1;
+        }
+        .add-btn {
+            width: 100%;
+            padding: 10px;
+            background: #4a90e2;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            margin-bottom: 18px;
+            transition: background 0.2s;
+        }
+        .add-btn:hover {
+            background: #357ab8;
+        }
+        .submit-btn {
+            width: 100%;
+            padding: 10px;
+            background: #52c41a;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+        .submit-btn:hover {
+            background: #389e0d;
+        }
+        .question-mark {
+            display: inline-block;
+            width: 18px;
+            height: 18px;
+            background: #e6f7ff;
+            color: #1890ff;
+            border-radius: 50%;
+            text-align: center;
+            line-height: 18px;
+            font-size: 14px;
+            margin-left: 4px;
+            cursor: pointer;
+            position: relative;
+        }
+        .tooltip {
+            display: none;
+            position: absolute;
+            left: 22px;
+            top: -8px;
+            background: #fff;
+            color: #333;
+            border: 1px solid #ddd;
+            border-radius: 5px;
+            padding: 8px 12px;
+            font-size: 13px;
+            z-index: 10;
+            width: 260px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+        }
+        .question-mark:hover .tooltip {
+            display: block;
+        }
+        .required {
+            color: #ff4d4f;
+            margin-left: 2px;
+        }
+        /* 生效中配置表格美化 */
+        .active-table-wrap {
+            background: #fff;
+            border-radius: 8px;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.04);
+            padding: 18px 18px 8px 18px;
+            margin-bottom: 24px;
+        }
+        .active-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: #fff;
+        }
+        .active-table th, .active-table td {
+            border: 1px solid #f0f0f0;
+            padding: 12px 8px;
+            text-align: center;
+        }
+        .active-table th {
+            background: #fafbfc;
+            font-weight: 700;
+            color: #222;
+            font-size: 15px;
+        }
+        .active-table tbody tr {
+            transition: background 0.2s;
+        }
+        .active-table tbody tr:hover {
+            background: #f5f7fa;
+        }
+        .active-table td {
+            font-size: 14px;
+            color: #333;
+        }
+        .active-table .action-btn {
+            color: #1890ff;
+            background: none;
+            border: none;
+            border-radius: 4px;
+            padding: 0 10px;
+            font-size: 14px;
+            cursor: pointer;
+            transition: background 0.15s;
+        }
+        .active-table .action-btn:hover {
+            background: #e6f7ff;
+        }
+        .active-table-filter {
+            margin-bottom: 12px;
+            display: flex;
+            align-items: center;
+        }
+        .active-table-filter label {
+            font-weight: 600;
+            color: #222;
+            margin-right: 8px;
+        }
+        .active-table-filter select {
+            padding: 5px 12px;
+            border-radius: 5px;
+            border: 1px solid #e0e0e0;
+            font-size: 14px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>个人账户发币规则配置</h2>
+        <div id="activeConfigSection" style="margin-bottom:32px;"></div>
+        <button type="button" class="add-btn" style="margin-bottom:20px;" onclick="addRule()">+ 新增规则</button>
+        <form id="rulesForm">
+            <div id="rulesList"></div>
+            <button type="submit" class="submit-btn" id="submitBtn" style="display:none;">提交全部配置</button>
+        </form>
+    </div>
+    <script>
+        // 生效中配置列表示例
+        let activeConfigs = [
+            {
+                id: 1,
+                city: '上海',
+                systemNo: '87654321,1234567890',
+                positionType: 'mainOrPart',
+                position: 'B002',
+                organization: '分公司',
+                validDays: '',
+                user: '张三',
+                updateTime: '2024-06-01 10:00:00'
+            },
+            {
+                id: 2,
+                city: '北京',
+                systemNo: '12345678',
+                positionType: 'main',
+                position: 'A001',
+                organization: '总部',
+                validDays: '7',
+                user: '李四',
+                updateTime: '2024-06-02 09:30:00'
+            }
+        ];
+        let cityFilter = '';
+        let userFilter = '';
+
+        function renderActiveConfigList() {
+            const section = document.getElementById('activeConfigSection');
+            // 城市和配置人筛选下拉
+            let cityOptions = Array.from(new Set(activeConfigs.map(cfg => cfg.city)));
+            cityOptions.unshift('城市');
+            let userOptions = Array.from(new Set(activeConfigs.map(cfg => cfg.user)));
+            userOptions.unshift('配置人');
+            let filterHtml = `<div class="active-table-wrap">
+                <div class="active-table-filter">
+                    <select id="cityFilter" onchange="onCityFilterChange()">
+                        ${cityOptions.map(city => `<option value="${city === '全部' ? '' : city}"${cityFilter === (city === '全部' ? '' : city) ? ' selected' : ''}>${city}</option>`).join('')}
+                    </select>
+                    <select id="userFilter" onchange="onUserFilterChange()" style="margin-left:12px;">
+                        ${userOptions.map(user => `<option value="${user === '全部' ? '' : user}"${userFilter === (user === '全部' ? '' : user) ? ' selected' : ''}>${user}</option>`).join('')}
+                    </select>
+                </div>
+                <table class="active-table">
+                    <thead>
+                        <tr>
+                            <th>配置id</th>
+                            <th>配置内容</th>
+                            <th>配置人</th>
+                            <th>更新时间</th>
+                            <th>操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${activeConfigs.filter(cfg => (!cityFilter || cfg.city === cityFilter) && (!userFilter || cfg.user === userFilter)).map(cfg => `
+                            <tr>
+                                <td>${cfg.id}</td>
+                                <td style="text-align:left;">
+                                    <b>城市：</b>${cfg.city} &nbsp; <b>系统号：</b>${cfg.systemNo || '—'}<br>
+                                    <b>岗位：</b>${cfg.positionType === 'main' ? '主岗' : '主岗或兼岗'} - ${cfg.position || '—'}<br>
+                                    <b>组织：</b>${cfg.organization || '—'}<br>
+                                    <b>有效期：</b>${cfg.validDays ? (cfg.validDays + '天') : '永久'}
+                                </td>
+                                <td>${cfg.user}</td>
+                                <td>${cfg.updateTime}</td>
+                                <td>
+                                    <button type="button" class="action-btn" onclick="deleteActiveConfig(${cfg.id})">删除</button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            </div>`;
+            section.innerHTML = filterHtml;
+        }
+        function onCityFilterChange() {
+            cityFilter = document.getElementById('cityFilter').value;
+            renderActiveConfigList();
+        }
+        function onUserFilterChange() {
+            userFilter = document.getElementById('userFilter').value;
+            renderActiveConfigList();
+        }
+        function deleteActiveConfig(id) {
+            if (confirm('确认删除这个规则吗？')) {
+                activeConfigs = activeConfigs.filter(cfg => cfg.id !== id);
+                renderActiveConfigList();
+            }
+        }
+        // 新增规则部分
+        const defaultRules = [];
+        document.addEventListener('DOMContentLoaded', function() {
+            renderActiveConfigList();
+            defaultRules.forEach(rule => addRule(rule));
+        });
+
+        function addRule(rule = {}) {
+            const rulesList = document.getElementById('rulesList');
+            const ruleDiv = document.createElement('div');
+            ruleDiv.className = 'rule';
+            ruleDiv.innerHTML = `
+                <button type="button" class="remove-btn" onclick="removeRule(this)">删除</button>
+                <div class="inline">
+                    <div>
+                        <label>城市<span class="required">*</span></label>
+                        <select name="city" required>
+                            <option value="">请选择城市</option>
+                            <option value="北京">北京</option>
+                            <option value="上海">上海</option>
+                            <option value="广州">广州</option>
+                            <option value="深圳">深圳</option>
+                            <option value="杭州">杭州</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label>系统号</label>
+                        <input type="text" name="systemNo" placeholder="选填，8或10位系统号，多个用英文逗号分隔">
+                    </div>
+                </div>
+                <div class="inline">
+                    <div style="flex:0.8;">
+                        <label>岗位编码<span class="required">*</span></label>
+                        <div style="display:flex;gap:8px;">
+                            <select name="positionType" style="width:120px;">
+                                <option value="main">主岗</option>
+                                <option value="mainOrPart">主岗或兼岗</option>
+                            </select>
+                            <input type="text" name="position" placeholder="组织和岗位至少填写一项" style="flex:1;">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <label>组织<span class="required">*</span></label>
+                    <input type="text" name="organization" placeholder="组织和岗位至少填写一项">
+                </div>
+                <div class="inline">
+                    <div>
+                        <label>规则有效期
+                            <span class="question-mark">?
+                                <span class="tooltip">有效期包含当天，比如今天为1月1日，有效期2天，则该条规则在1月2日24点失效。留空为永久有效。</span>
+                            </span>
+                        </label>
+                        <input type="number" name="validDays" min="1" placeholder="天数，留空为永久">
+                    </div>
+                </div>
+            `;
+            rulesList.appendChild(ruleDiv);
+            // 设置默认值
+            if (rule.city) ruleDiv.querySelector('select[name="city"]').value = rule.city;
+            if (rule.systemNo) ruleDiv.querySelector('input[name="systemNo"]').value = rule.systemNo;
+            if (rule.positionType) ruleDiv.querySelector('select[name="positionType"]').value = rule.positionType;
+            if (rule.position) ruleDiv.querySelector('input[name="position"]').value = rule.position;
+            if (rule.organization) ruleDiv.querySelector('input[name="organization"]').value = rule.organization;
+            if (rule.validDays) ruleDiv.querySelector('input[name="validDays"]').value = rule.validDays;
+            // 显示提交按钮
+            document.getElementById('submitBtn').style.display = '';
+        }
+
+        function removeRule(btn) {
+            if (confirm('确认删除这个规则吗？')) {
+                const rule = btn.closest('.rule');
+                rule.remove();
+            }
+        }
+
+        document.getElementById('rulesForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const rules = [];
+            let valid = true;
+            document.querySelectorAll('.rule').forEach(ruleDiv => {
+                const city = ruleDiv.querySelector('input[name="city"]').value.trim();
+                const systemNo = ruleDiv.querySelector('input[name="systemNo"]').value.trim();
+                const position = ruleDiv.querySelector('input[name="position"]').value.trim();
+                const positionType = ruleDiv.querySelector('select[name="positionType"]').value;
+                const organization = ruleDiv.querySelector('input[name="organization"]').value.trim();
+                const validDays = ruleDiv.querySelector('input[name="validDays"]').value.trim();
+                if (!city || (!position && !organization)) {
+                    valid = false;
+                    ruleDiv.style.borderColor = '#ff4d4f';
+                } else {
+                    ruleDiv.style.borderColor = '#e0e0e0';
+                }
+                rules.push({ city, systemNo, position, positionType, organization, validDays });
+            });
+            if (!valid) {
+                alert('请确保每条规则的城市必填，且岗位和组织至少填写一项。');
+                return;
+            }
+            // 这里可以将rules提交到后端，或在控制台打印
+            console.log('配置的规则：', rules);
+            alert('配置已提交！\n请在控制台查看规则数据。');
+        });
+    </script>
+</body>
+</html> 
